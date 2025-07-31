@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace SOMVision.Core
 {
     //검사와 관련된 클래스를 관리하는 클래스
@@ -15,7 +16,10 @@ namespace SOMVision.Core
         public static readonly int MAX_GRAB_BUF = 5;
 
         private ImageSpace _imageSpace = null;
-        private HikRobotCam _grabManager = null;
+        //private HikRobotCam _grabManager = null;
+        private GrabModel _grabManager = null;
+        private CameraType _camType = CameraType.WebCam;
+
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
@@ -37,9 +41,23 @@ namespace SOMVision.Core
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
-            _grabManager = new HikRobotCam();
 
-            if (_grabManager.InitGrab() == true)
+            switch (_camType)
+            {
+
+                case CameraType.WebCam:
+                    {
+                        _grabManager = new WebCam();
+                        break;
+                    }
+                case CameraType.HikRobotCam:
+                    {
+                        _grabManager = new HikRobotCam();
+                        break;
+                    }
+            }
+
+            if (_grabManager != null && _grabManager.InitGrab() == true)
             {
                 _grabManager.TransferCompleted += _multiGrab_TransferCompleted;
 
