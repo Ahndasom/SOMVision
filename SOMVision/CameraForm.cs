@@ -1,4 +1,5 @@
-﻿using SOMVision.Core;
+﻿using OpenCvSharp;
+using SOMVision.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,6 +53,9 @@ namespace SOMVision
 
             if (imageViewer != null)
                 imageViewer.LoadBitmap(bitmap);
+
+            Mat curImage = Global.Inst.InspStage.GetMat();
+            Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
         public Bitmap GetDisplayImage()
@@ -62,6 +66,10 @@ namespace SOMVision
                 curImage = imageViewer.GetCurBitmap();
 
             return curImage;
+        }
+        public void UpdateImageViewer()
+        {
+            imageViewer.Invalidate();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using SOMVision.Grab;
+﻿using OpenCvSharp;
+using SOMVision.Algorithm;
+using SOMVision.Grab;
 using SOMVision.Inspect;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,8 @@ namespace SOMVision.Core
         private CameraType _camType = CameraType.WebCam;
 
         SaigeAI _saigeAI; // SaigeAI 인스턴스
+        BlobAlgorithm _blobAlgorithm = null; // Blob 알고리즘 인스턴스
+        private PreviewImage _previewImage = null;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -37,11 +41,21 @@ namespace SOMVision.Core
                 return _saigeAI;
             }
         }
+        public BlobAlgorithm BlobAlgorithm
+        {
+            get => _blobAlgorithm;
+        }
+
+        public PreviewImage PreView
+        {
+            get => _previewImage;
+        }
 
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
-
+            _blobAlgorithm = new BlobAlgorithm();
+            _previewImage = new PreviewImage();
             switch (_camType)
             {
 
@@ -88,7 +102,19 @@ namespace SOMVision.Core
             SetBuffer(bufferCount);
 
             //_grabManager.SetExposureTime(25000);
+            UpdateProperty();
+        }
 
+        private void UpdateProperty()
+        {
+            if (BlobAlgorithm is null)
+                return;
+
+            PropertiesForm propertiesForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propertiesForm is null)
+                return;
+
+            propertiesForm.UpdateProperty(BlobAlgorithm);
         }
 
         public void SetBuffer(int bufferCount)
@@ -170,6 +196,19 @@ namespace SOMVision.Core
             return Global.Inst.InspStage.ImageSpace.GetBitmap();
         }
 
+        public Mat GetMat()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat();
+        }
+
+        public void RedrawMainView()
+        {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdateImageViewer();
+            }
+        }
         #region Disposable
 
         private bool disposed = false; // to detect redundant calls
