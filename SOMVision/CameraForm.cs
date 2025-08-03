@@ -43,6 +43,7 @@ namespace SOMVision
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
+            
             if (bitmap == null)
             {
                 //#6_INSP_STAGE#3 업데이트시 bitmap이 없다면 InspSpace에서 가져온다
@@ -56,6 +57,7 @@ namespace SOMVision
 
             Mat curImage = Global.Inst.InspStage.GetMat();
             Global.Inst.InspStage.PreView.SetImage(curImage);
+           
         }
 
         public Bitmap GetDisplayImage()

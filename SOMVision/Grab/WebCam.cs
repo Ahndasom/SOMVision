@@ -22,9 +22,11 @@ namespace SOMVision.Grab
         internal override bool Create(string strIpAddr = null)
         {
             _capture = new VideoCapture(0);
-            if (_capture == null)
+            if (_capture == null || !_capture.IsOpened())
+            {
+                Console.WriteLine("WebCam 초기화 실패");
                 return false;
-
+            }
             return true;
 
         }

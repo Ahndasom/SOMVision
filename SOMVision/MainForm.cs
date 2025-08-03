@@ -86,5 +86,11 @@ namespace SOMVision
         {
             Global.Inst.Dispose();
         }
+
+        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SetupForm setupForm = new SetupForm();
+            setupForm.Show();
+        }
     }
 }

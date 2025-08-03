@@ -29,25 +29,48 @@
         private void InitializeComponent()
         {
             this.btnGrab = new System.Windows.Forms.Button();
+            this.btnInsp = new System.Windows.Forms.Button();
+            this.btnLive = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGrab
             // 
-            this.btnGrab.Location = new System.Drawing.Point(13, 13);
-            this.btnGrab.Margin = new System.Windows.Forms.Padding(4);
+            this.btnGrab.Location = new System.Drawing.Point(9, 9);
             this.btnGrab.Name = "btnGrab";
-            this.btnGrab.Size = new System.Drawing.Size(131, 74);
+            this.btnGrab.Size = new System.Drawing.Size(92, 49);
             this.btnGrab.TabIndex = 1;
             this.btnGrab.Text = "촬상";
             this.btnGrab.UseVisualStyleBackColor = true;
             this.btnGrab.Click += new System.EventHandler(this.btnGrab_Click);
             // 
+            // btnInsp
+            // 
+            this.btnInsp.Location = new System.Drawing.Point(117, 9);
+            this.btnInsp.Name = "btnInsp";
+            this.btnInsp.Size = new System.Drawing.Size(92, 49);
+            this.btnInsp.TabIndex = 2;
+            this.btnInsp.Text = "검사";
+            this.btnInsp.UseVisualStyleBackColor = true;
+            // 
+            // btnLive
+            // 
+            this.btnLive.Location = new System.Drawing.Point(228, 10);
+            this.btnLive.Name = "btnLive";
+            this.btnLive.Size = new System.Drawing.Size(92, 49);
+            this.btnLive.TabIndex = 3;
+            this.btnLive.Text = "동영상 촬영";
+            this.btnLive.UseVisualStyleBackColor = true;
+            this.btnLive.Click += new System.EventHandler(this.btnLive_Click);
+            // 
             // RunForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(317, 111);
+            this.ClientSize = new System.Drawing.Size(507, 74);
+            this.Controls.Add(this.btnLive);
+            this.Controls.Add(this.btnInsp);
             this.Controls.Add(this.btnGrab);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "RunForm";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -57,5 +80,7 @@
         #endregion
 
         private System.Windows.Forms.Button btnGrab;
+        private System.Windows.Forms.Button btnInsp;
+        private System.Windows.Forms.Button btnLive;
     }
 }
