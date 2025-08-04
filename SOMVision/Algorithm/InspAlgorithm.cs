@@ -22,6 +22,8 @@ namespace SOMVision.Algorithm
         public bool IsUse { get; set; } = true;
         //검사가 완료되었는지를 판단
         public bool IsInspected { get; set; } = false;
+        public Rect TeachRect { get; set; }
+        public Rect InspRect { get; set; }
 
         //검사할 원본 이미지
         protected Mat _srcImage = null;
@@ -31,6 +33,10 @@ namespace SOMVision.Algorithm
 
         //불량 여부
         public bool IsDefect { get; set; }
+        public virtual void SetInspData(Mat srcImage)
+        {
+            _srcImage = srcImage;
+        }
 
         //검사 함수로, 상속 받는 클래스는 필수로 구현해야한다.
         public abstract bool DoInspect();
@@ -41,6 +47,11 @@ namespace SOMVision.Algorithm
             IsInspected = false;
             IsDefect = false;
             ResultString.Clear();
+        }
+        public virtual int GetResultRect(out List<DrawInspectInfo> resultArea)
+        {
+            resultArea = null;
+            return 0;
         }
     }
 }

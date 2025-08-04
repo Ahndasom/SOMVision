@@ -33,7 +33,12 @@
             this.cbHighlight = new System.Windows.Forms.ComboBox();
             this.lbHighlight = new System.Windows.Forms.Label();
             this.chkUse = new System.Windows.Forms.CheckBox();
+            this.chkRotatedRect = new System.Windows.Forms.CheckBox();
+            this.cbBinMethod = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.dataGridViewFilter = new System.Windows.Forms.DataGridView();
             this.grpBinary.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFilter)).BeginInit();
             this.SuspendLayout();
             // 
             // grpBinary
@@ -52,7 +57,7 @@
             // 
             // binRangeTrackbar
             // 
-            this.binRangeTrackbar.Location = new System.Drawing.Point(12, 37);
+            this.binRangeTrackbar.Location = new System.Drawing.Point(13, 45);
             this.binRangeTrackbar.Name = "binRangeTrackbar";
             this.binRangeTrackbar.Size = new System.Drawing.Size(327, 53);
             this.binRangeTrackbar.TabIndex = 8;
@@ -63,7 +68,7 @@
             // 
             this.cbHighlight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbHighlight.FormattingEnabled = true;
-            this.cbHighlight.Location = new System.Drawing.Point(118, 111);
+            this.cbHighlight.Location = new System.Drawing.Point(119, 118);
             this.cbHighlight.Margin = new System.Windows.Forms.Padding(4);
             this.cbHighlight.Name = "cbHighlight";
             this.cbHighlight.Size = new System.Drawing.Size(165, 26);
@@ -72,7 +77,7 @@
             // lbHighlight
             // 
             this.lbHighlight.AutoSize = true;
-            this.lbHighlight.Location = new System.Drawing.Point(13, 117);
+            this.lbHighlight.Location = new System.Drawing.Point(14, 124);
             this.lbHighlight.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbHighlight.Name = "lbHighlight";
             this.lbHighlight.Size = new System.Drawing.Size(98, 18);
@@ -92,16 +97,69 @@
             this.chkUse.Text = "검사";
             this.chkUse.UseVisualStyleBackColor = true;
             // 
+            // chkRotatedRect
+            // 
+            this.chkRotatedRect.AutoSize = true;
+            this.chkRotatedRect.Checked = true;
+            this.chkRotatedRect.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRotatedRect.Location = new System.Drawing.Point(26, 476);
+            this.chkRotatedRect.Margin = new System.Windows.Forms.Padding(4);
+            this.chkRotatedRect.Name = "chkRotatedRect";
+            this.chkRotatedRect.Size = new System.Drawing.Size(124, 22);
+            this.chkRotatedRect.TabIndex = 18;
+            this.chkRotatedRect.Text = "회전사각형";
+            this.chkRotatedRect.UseVisualStyleBackColor = true;
+            this.chkRotatedRect.CheckedChanged += new System.EventHandler(this.chkRotatedRect_CheckedChanged);
+            // 
+            // cbBinMethod
+            // 
+            this.cbBinMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbBinMethod.FormattingEnabled = true;
+            this.cbBinMethod.Location = new System.Drawing.Point(123, 242);
+            this.cbBinMethod.Margin = new System.Windows.Forms.Padding(4);
+            this.cbBinMethod.Name = "cbBinMethod";
+            this.cbBinMethod.Size = new System.Drawing.Size(167, 26);
+            this.cbBinMethod.TabIndex = 16;
+            this.cbBinMethod.SelectedIndexChanged += new System.EventHandler(this.cbBinMethod_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(22, 248);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(86, 18);
+            this.label1.TabIndex = 17;
+            this.label1.Text = "검사 타입";
+            // 
+            // dataGridViewFilter
+            // 
+            this.dataGridViewFilter.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewFilter.Location = new System.Drawing.Point(15, 290);
+            this.dataGridViewFilter.Margin = new System.Windows.Forms.Padding(4);
+            this.dataGridViewFilter.Name = "dataGridViewFilter";
+            this.dataGridViewFilter.RowHeadersWidth = 62;
+            this.dataGridViewFilter.RowTemplate.Height = 23;
+            this.dataGridViewFilter.Size = new System.Drawing.Size(357, 177);
+            this.dataGridViewFilter.TabIndex = 15;
+            this.dataGridViewFilter.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewFilter_CellValueChanged);
+            this.dataGridViewFilter.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridViewFilter_CurrentCellDirtyStateChanged);
+            // 
             // BinaryProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.chkRotatedRect);
+            this.Controls.Add(this.cbBinMethod);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.dataGridViewFilter);
             this.Controls.Add(this.grpBinary);
             this.Controls.Add(this.chkUse);
             this.Name = "BinaryProp";
             this.Size = new System.Drawing.Size(389, 522);
             this.grpBinary.ResumeLayout(false);
             this.grpBinary.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFilter)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -114,5 +172,9 @@
         private System.Windows.Forms.ComboBox cbHighlight;
         private System.Windows.Forms.Label lbHighlight;
         private System.Windows.Forms.CheckBox chkUse;
+        private System.Windows.Forms.CheckBox chkRotatedRect;
+        private System.Windows.Forms.ComboBox cbBinMethod;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DataGridView dataGridViewFilter;
     }
 }

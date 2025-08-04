@@ -40,13 +40,18 @@ namespace SOMVision
 
             if (Global.Inst.InspStage.LiveMode)
             {
-                btnLive.Text = "LIVE STOP";
+                btnLive.Text = "동영상 멈춤";
                 Global.Inst.InspStage.Grab(0); // 최초 시작
             }
             else
             {
-                btnLive.Text = "LIVE START";
+                btnLive.Text = "동영상 촬영";
             }
+        }
+
+        private void btnInsp_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.TryInspection();
         }
     }
 }

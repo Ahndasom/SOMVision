@@ -131,7 +131,7 @@ namespace SOMVision.Core
             _previewImage = new PreviewImage();
 
             // 중복 Init 제거
-            SetCameraType(_camType);
+            SetCameraType(CameraType.WebCam);
 
             return true;
         }
@@ -193,6 +193,43 @@ namespace SOMVision.Core
             }
         }
 
+        public void TryInspection()
+        {
+            if (_blobAlgorithm is null)
+                return;
+
+            Mat srcImage = Global.Inst.InspStage.GetMat();
+            _blobAlgorithm.SetInspData(srcImage);
+
+            _blobAlgorithm.InspRect = new Rect(0, 0, srcImage.Width, srcImage.Height);
+
+            if (_blobAlgorithm.DoInspect())
+            {
+                DisplayResult();
+            }
+        }
+
+        //검사된 알고리즘이 가지고 있는 검사 결과 정보를 화면에 출력
+        private bool DisplayResult()
+        {
+            if (_blobAlgorithm is null)
+                return false;
+
+            List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
+            int resultCnt = _blobAlgorithm.GetResultRect(out resultArea);
+            if (resultCnt > 0)
+            {
+                //찾은 위치를 이미지상에서 표시
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
+                {
+                    cameraForm.ResetDisplay();
+                    cameraForm.AddRect(resultArea);
+                }
+            }
+
+            return true;
+        }
 
         public void Grab(int bufferIndex)
         {

@@ -1,4 +1,5 @@
 ﻿using SOMVision.Core;
+using SOMVision.Grab;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,7 +58,8 @@ namespace SOMVision
 
         public static T GetDockForm<T>() where T : DockContent
         {
-            var findForm = _dockPanel.Documents.OfType<T>().FirstOrDefault();
+
+            var findForm = _dockPanel.Contents.OfType<T>().FirstOrDefault();
             return findForm;
         }
 
@@ -92,5 +94,6 @@ namespace SOMVision
             SetupForm setupForm = new SetupForm();
             setupForm.Show();
         }
+
     }
 }
