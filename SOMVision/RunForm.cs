@@ -23,6 +23,7 @@ namespace SOMVision
         private void btnGrab_Click(object sender, EventArgs e)
         {
             var stage = Global.Inst.InspStage;
+
             Console.WriteLine($"[RunForm] 촬상 클릭됨. CameraType: {stage.GetCurrentCameraType()}");
 
             if (stage.GetCurrentCameraType() == CameraType.None)
@@ -37,7 +38,7 @@ namespace SOMVision
         private void btnLive_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.ToggleLiveMode();
-
+            
             if (Global.Inst.InspStage.LiveMode)
             {
                 btnLive.Text = "동영상 멈춤";

@@ -1,5 +1,6 @@
 ﻿using SOMVision.Core;
 using SOMVision.Grab;
+using SOMVision.Setting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -83,17 +84,16 @@ namespace SOMVision
             }
 
         }
-
+        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SetupForm setupForm = new SetupForm();
+            setupForm.ShowDialog();
+        }
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             Global.Inst.Dispose();
         }
 
-        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            SetupForm setupForm = new SetupForm();
-            setupForm.Show();
-        }
 
     }
 }
