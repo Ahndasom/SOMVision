@@ -1,6 +1,7 @@
 ﻿using SOMVision.Algorithm;
 using SOMVision.Core;
 using SOMVision.Property;
+using SOMVision.Teach;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,26 +16,18 @@ using WeifenLuo.WinFormsUI.ThemeVS2015;
 
 namespace SOMVision
 {
-    public enum PropertyType
-    {
-        Binary,
-        Filter,
-        AIModule
-    }
+    
     public partial class PropertiesForm : DockContent
     {
         Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
         public PropertiesForm()
         {
             InitializeComponent();
-            LoadOptionControl(PropertyType.Filter);
-            LoadOptionControl(PropertyType.Binary);
-            LoadOptionControl(PropertyType.AIModule);
         }
 
-        private void LoadOptionControl(PropertyType propType)
+        private void LoadOptionControl(InspectType inspType)
         {
-            string tabName = propType.ToString();
+            string tabName = inspType.ToString();
 
             // 이미 있는 TabPage인지 확인
             foreach (TabPage tabPage in tabPropControl.TabPages)
@@ -49,8 +42,9 @@ namespace SOMVision
                 tabPropControl.TabPages.Add(page);
                 return;
             }
+
             // 새로운 UserControl 생성
-            UserControl _inspProp = CreateUserControl(propType);
+            UserControl _inspProp = CreateUserControl(inspType);
             if (_inspProp == null)
                 return;
 
@@ -67,24 +61,26 @@ namespace SOMVision
             _allTabs[tabName] = newTab;
         }
 
-        private UserControl CreateUserControl(PropertyType propType)
+        private UserControl CreateUserControl(InspectType inspPropType)
         {
             UserControl curProp = null;
-            switch (propType)
+            switch (inspPropType)
             {
-                case PropertyType.Binary:
+                case InspectType.InspBinary:
                     BinaryProp blobProp = new BinaryProp();
+
+                    //#7_BINARY_PREVIEW#8 이진화 속성 변경시 발생하는 이벤트 추가
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
-                    blobProp.PropertyChanged += PropertyChanged;
+                    //blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
-                case PropertyType.Filter:
+                case InspectType.InspFilter:
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
                     break;
-                case PropertyType.AIModule:
-                    AIModuleProp moduleProp = new AIModuleProp();
-                    curProp = moduleProp;
+                case InspectType.InspAIModule:
+                    AIModuleProp aiModuleProp = new AIModuleProp();
+                    curProp = aiModuleProp;
                     break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
@@ -92,9 +88,23 @@ namespace SOMVision
             }
             return curProp;
         }
-        public void UpdateProperty(BlobAlgorithm blobAlgorithm)
+        //#11_MODEL_TREE#3 InspWindow에서 사용하는 알고리즘을 모두 탭에 추가
+        public void ShowProperty(InspWindow window)
         {
-            if (blobAlgorithm is null)
+            foreach (InspAlgorithm algo in window.AlgorithmList)
+            {
+                LoadOptionControl(algo.InspectType);
+            }
+        }
+
+        public void ResetProperty()
+        {
+            tabPropControl.TabPages.Clear();
+        }
+
+        public void UpdateProperty(InspWindow window)
+        {
+            if (window is null)
                 return;
 
             foreach (TabPage tabPage in tabPropControl.TabPages)
@@ -105,7 +115,11 @@ namespace SOMVision
 
                     if (uc is BinaryProp binaryProp)
                     {
-                        binaryProp.SetAlgorithm(blobAlgorithm);
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
+
+                        binaryProp.SetAlgorithm(blobAlgo);
                     }
                 }
             }

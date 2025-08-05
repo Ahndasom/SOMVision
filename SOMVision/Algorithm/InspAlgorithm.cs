@@ -11,6 +11,8 @@ namespace SOMVision.Algorithm
     {
         InspNone = -1,
         InspBinary,
+        InspFilter,
+        InspAIModule,
         InspCount
     }
     public abstract class InspAlgorithm
@@ -33,6 +35,18 @@ namespace SOMVision.Algorithm
 
         //불량 여부
         public bool IsDefect { get; set; }
+
+        public abstract InspAlgorithm Clone();
+        public abstract bool CopyFrom(InspAlgorithm sourceAlgo);
+        protected void CopyBaseTo(InspAlgorithm target)
+        {
+            target.InspectType = this.InspectType;
+            target.IsUse = this.IsUse;
+            target.IsInspected = this.IsInspected;
+            target.TeachRect = this.TeachRect;
+            target.InspRect = this.InspRect;
+            // NOTE: _srcImage 는 런타임 검사용이라 복사하지 않음
+        }
         public virtual void SetInspData(Mat srcImage)
         {
             _srcImage = srcImage;

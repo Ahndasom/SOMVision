@@ -1,12 +1,13 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using SOMVision.Property;
+using SOMVision.Teach;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SOMVision.Property;
 
 namespace SOMVision.Core
 {
@@ -14,6 +15,7 @@ namespace SOMVision.Core
     {
         private Mat _orinalImage = null;
         private Mat _previewImage = null;
+        private InspWindow _inspWindow = null;
         private bool _usePreview = true;
 
         public void SetImage(Mat image)
@@ -22,6 +24,11 @@ namespace SOMVision.Core
             _previewImage = new Mat();
         }
 
+        //#10_INSPWINDOW#6 프리뷰를 위한 InspWindow 설정
+        public void SetInspWindow(InspWindow inspwindow)
+        {
+            _inspWindow = inspwindow;
+        }
         //ShowBinaryMode에 따라 이진화 프리뷰 진행
         public void SetBinary(int lowerValue, int upperValue, bool invert, ShowBinaryMode showBinMode)
         {
@@ -44,7 +51,10 @@ namespace SOMVision.Core
             }
 
             Rect windowArea = new Rect(0, 0, _orinalImage.Width, _orinalImage.Height);
-
+            if (_inspWindow != null)
+            {
+                windowArea = _inspWindow.WindowArea;
+            }
             Mat orgRoi = _orinalImage[windowArea];
 
             Mat grayImage = new Mat();

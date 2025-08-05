@@ -76,9 +76,39 @@ namespace SOMVision.Algorithm
         {
             InspectType = InspectType.InspBinary;
             BinThreshold = new BinaryThreshold(100, 200, false);
-            SetDefault();
+        }
+        public override InspAlgorithm Clone()
+        {
+            var cloneAlgo = new BlobAlgorithm();
+
+            // 공통 필드 복사
+            this.CopyBaseTo(cloneAlgo);
+
+            cloneAlgo.CopyFrom(this);
+
+            return cloneAlgo;
         }
 
+        public override bool CopyFrom(InspAlgorithm sourceAlgo)
+        {
+            BlobAlgorithm blobAlgo = (BlobAlgorithm)sourceAlgo;
+
+            this.BinThreshold = blobAlgo.BinThreshold;
+            this.BinMethod = blobAlgo.BinMethod;
+            this.UseRotatedRect = blobAlgo.UseRotatedRect;
+
+            this.BlobFilters = blobAlgo.BlobFilters
+                               .Select(b => new BlobFilter
+                               {
+                                   name = b.name,
+                                   isUse = b.isUse,
+                                   min = b.min,
+                                   max = b.max
+                               })
+                               .ToList();
+
+            return true;
+        }
         //BlobAlgorithm 생성시, 기본 필터 설정
         public void SetDefault()
         {
