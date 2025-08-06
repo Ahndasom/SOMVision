@@ -76,13 +76,13 @@ namespace SOMVision.Setting
         private static SettingXml CreateDefaultInstance()
         {
             SettingXml setting = new SettingXml();
-            setting.ModelDir = @"d:\model";
+            setting.ModelDir = @"C:\sommodel";
             return setting;
         }
 
         public SettingXml() { }
 
-        public string MachineName { get; set; } = "Jidam";
+        public string MachineName { get; set; } = "DASOM";
 
         public string ModelDir { get; set; } = "";
         public string ImageDir { get; set; } = "";

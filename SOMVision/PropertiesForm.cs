@@ -74,6 +74,11 @@ namespace SOMVision
                     //blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
+                case InspectType.InspMatch:
+                    MatchInspProp matchProp = new MatchInspProp();
+                    matchProp.PropertyChanged += PropertyChanged;
+                    curProp = matchProp;
+                    break;
                 case InspectType.InspFilter:
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
@@ -120,6 +125,16 @@ namespace SOMVision
                             continue;
 
                         binaryProp.SetAlgorithm(blobAlgo);
+                    }
+                    else if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
+
+                        window.PatternLearn();
+
+                        matchProp.SetAlgorithm(matchAlgo);
                     }
                 }
             }

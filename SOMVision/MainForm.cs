@@ -1,6 +1,7 @@
 ﻿using SOMVision.Core;
 using SOMVision.Grab;
 using SOMVision.Setting;
+using SOMVision.Teach;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -94,7 +95,70 @@ namespace SOMVision
         {
             Global.Inst.Dispose();
         }
+        private string GetMdoelTitle(Model curModel)
+        {
+            if (curModel is null)
+                return "";
 
+            string modelName = curModel.ModelName;
+            return $"{Define.PROGRAM_NAME} - MODEL : {modelName}";
+        }
 
+        private void modelNewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NewModel newModel = new NewModel();
+            newModel.ShowDialog();
+
+            Model curModel = Global.Inst.InspStage.CurModel;
+            if (curModel != null)
+            {
+                this.Text = GetMdoelTitle(curModel);
+            }
+        }
+
+        private void modelOpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "모델 파일 선택";
+                openFileDialog.Filter = "Model Files|*.xml;";
+                openFileDialog.Multiselect = false;
+                openFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+                    if (Global.Inst.InspStage.LoadModel(filePath))
+                    {
+                        Model curModel = Global.Inst.InspStage.CurModel;
+                        if (curModel != null)
+                        {
+                            this.Text = GetMdoelTitle(curModel);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void modelSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.SaveModel("");
+        }
+
+        private void modelSaveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
+                saveFileDialog.Title = "모델 파일 선택";
+                saveFileDialog.Filter = "Model Files|*.xml;";
+                saveFileDialog.DefaultExt = "xml";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = saveFileDialog.FileName;
+                    Global.Inst.InspStage.SaveModel(filePath);
+                }
+            }
+        }
     }
 }

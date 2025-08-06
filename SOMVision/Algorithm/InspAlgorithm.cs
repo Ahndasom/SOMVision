@@ -1,9 +1,11 @@
 ﻿using OpenCvSharp;
+using SOMVision.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace SOMVision.Algorithm
 {
@@ -11,10 +13,13 @@ namespace SOMVision.Algorithm
     {
         InspNone = -1,
         InspBinary,
+        InspMatch,
         InspFilter,
         InspAIModule,
         InspCount
     }
+    [XmlInclude(typeof(MatchAlgorithm))]
+    [XmlInclude(typeof(BlobAlgorithm))]
     public abstract class InspAlgorithm
     {
         //알고리즘 타입 정의
@@ -26,7 +31,7 @@ namespace SOMVision.Algorithm
         public bool IsInspected { get; set; } = false;
         public Rect TeachRect { get; set; }
         public Rect InspRect { get; set; }
-
+        public eImageChannel ImageChannel { get; set; } = eImageChannel.Gray;
         //검사할 원본 이미지
         protected Mat _srcImage = null;
 

@@ -1,11 +1,13 @@
-﻿using SOMVision.Algorithm;
+﻿using OpenCvSharp;
+using SOMVision.Algorithm;
+using SOMVision.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenCvSharp;
-using SOMVision.Core;
+using System.Xml.Serialization;
 
 namespace SOMVision.Teach
 {
@@ -20,7 +22,46 @@ namespace SOMVision.Teach
         public Rect InspArea { get; set; }
         public bool IsTeach { get; set; } = false;
 
+        [XmlElement("InspAlgorithm")]
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
+        [XmlIgnore]
+        public List<Mat> _windowImages = new List<Mat>();
+        public void AddWindowImage(Mat image)
+        {
+            if (image is null)
+                return;
+
+            _windowImages.Add(image.Clone());
+        }
+
+        public void ResetWindowImages()
+        {
+            _windowImages.Clear();
+        }
+
+        public void SetWindowImage(Mat image, int index)
+        {
+            if (image is null)
+                return;
+
+            if (index < 0 || index >= _windowImages.Count)
+                return;
+
+            _windowImages[index] = image.Clone();
+        }
+
+        public void DelWindowImage(int index)
+        {
+            if (index < 0 || index >= _windowImages.Count)
+                return;
+
+            _windowImages.RemoveAt(index);
+
+            IsPatternLearn = false;
+            PatternLearn();
+        }
+
+        public bool IsPatternLearn { get; set; } = false;
 
         public InspWindow()
         {
@@ -46,6 +87,43 @@ namespace SOMVision.Teach
 
             return cloneWindow;
         }
+        //#11_MATCHING#2 InspWindow에 있는 템플릿 이미지를 MatchAlgorithm에 등록하는 함수
+        public bool PatternLearn()
+        {
+            if (IsPatternLearn == true)
+                return true;
+
+            foreach (var algorithm in AlgorithmList)
+            {
+                if (algorithm.InspectType != InspectType.InspMatch)
+                    continue;
+
+                MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
+                matchAlgo.ResetTemplateImages();
+
+                for (int i = 0; i < _windowImages.Count; i++)
+                {
+                    Mat tempImage = _windowImages[i];
+                    if (tempImage is null)
+                        continue;
+
+                    if (tempImage.Type() == MatType.CV_8UC3)
+                    {
+                        Mat grayImage = new Mat();
+                        Cv2.CvtColor(tempImage, grayImage, ColorConversionCodes.BGR2GRAY);
+                        matchAlgo.AddTemplateImage(grayImage);
+                    }
+                    else
+                    {
+                        matchAlgo.AddTemplateImage(tempImage);
+                    }
+                }
+            }
+
+            IsPatternLearn = true;
+
+            return true;
+        }
 
         //#ABSTRACT ALGORITHM#10 타입에 따라 알고리즘을 추가하는 함수
         public bool AddInspAlgorithm(InspectType inspType)
@@ -56,6 +134,9 @@ namespace SOMVision.Teach
             {
                 case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
+                    break;
+                case InspectType.InspMatch:
+                    inspAlgo = new MatchAlgorithm();
                     break;
             }
 
@@ -112,6 +193,69 @@ namespace SOMVision.Teach
         {
             InspArea = WindowArea + offset;
             AlgorithmList.ForEach(algo => algo.InspRect = algo.TeachRect + offset);
+            return true;
+        }
+
+        //#12_MODEL SAVE#1 InspWindow가 가지고 있는 이미지를 모델 폴더에 저장과 로딩
+        public virtual bool SaveInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+            if (!Directory.Exists(imgDir))
+            {
+                Directory.CreateDirectory(imgDir);
+            }
+
+            for (int i = 0; i < _windowImages.Count; i++)
+            {
+                Mat img = _windowImages[i];
+                if (img is null)
+                    continue;
+
+                string targetPath = Path.Combine(imgDir, $"{UID}_{i}.png");
+                Cv2.ImWrite(targetPath, img);
+            }
+
+            return true;
+        }
+
+        public virtual bool LoadInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+
+            foreach (InspAlgorithm algo in AlgorithmList)
+            {
+                if (algo is null)
+                    continue;
+
+                if (algo.InspectType == InspectType.InspMatch)
+                {
+                    MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
+
+                    int i = 0;
+                    while (true)
+                    {
+                        string targetPath = Path.Combine(imgDir, $"{UID}_{i}.png");
+                        if (!File.Exists(targetPath))
+                            break;
+
+                        Mat windowImage = Cv2.ImRead(targetPath);
+                        if (windowImage != null)
+                        {
+                            AddWindowImage(windowImage);
+                        }
+
+                        i++;
+                    }
+                    IsPatternLearn = false;
+                }
+            }
+
             return true;
         }
     }

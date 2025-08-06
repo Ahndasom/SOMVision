@@ -1,4 +1,5 @@
 ﻿using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using SOMVision.Algorithm;
 using SOMVision.Grab;
 using SOMVision.Inspect;
@@ -7,10 +8,11 @@ using SOMVision.Teach;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-
 
 namespace SOMVision.Core
 {
@@ -59,6 +61,8 @@ namespace SOMVision.Core
         }
 
         public bool LiveMode { get; private set; } = false;
+        public int SelBufferIndex { get; set; } = 0;
+        public eImageChannel SelImageChannel { get; set; } = eImageChannel.Gray;
 
         public void ToggleLiveMode()
         {
@@ -158,6 +162,72 @@ namespace SOMVision.Core
             //_grabManager.SetExposureTime(25000);
             //UpdateProperty();
         }
+        public void SetImageBuffer(string filePath)
+        {
+            Console.Write($"Load Image : {filePath}");
+
+            Mat matImage = Cv2.ImRead(filePath);
+
+            int pixelBpp = 8;
+            int imageWidth;
+            int imageHeight;
+            int imageStride;
+
+            if (matImage.Type() == MatType.CV_8UC3)
+                pixelBpp = 24;
+
+            imageWidth = (matImage.Width + 3) / 4 * 4;
+            imageHeight = matImage.Height;
+
+            // 4바이트 정렬된 새로운 Mat 생성
+            Mat alignedMat = new Mat();
+            Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
+
+            imageStride = imageWidth * matImage.ElemSize();
+
+            if (_imageSpace != null)
+            {
+                _imageSpace.SetImageInfo(pixelBpp, imageWidth, imageHeight, imageStride);
+            }
+
+            SetBuffer(1);
+
+            int bufferIndex = 0;
+
+            // Mat의 데이터를 byte 배열로 복사
+            int bufSize = (int)(alignedMat.Total() * alignedMat.ElemSize());
+            Marshal.Copy(alignedMat.Data, ImageSpace.GetInspectionBuffer(bufferIndex), 0, bufSize);
+
+            _imageSpace.Split(bufferIndex);
+
+            DisplayGrabImage(bufferIndex);
+
+            if (_previewImage != null)
+            {
+                Bitmap bitmap = ImageSpace.GetBitmap(0);
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
+        }
+
+        public void CheckImageBuffer()
+        {
+            if (_grabManager != null && SettingXml.Inst.CamType != CameraType.None)
+            {
+                int imageWidth;
+                int imageHeight;
+                int imageStride;
+                _grabManager.GetResolution(out imageWidth, out imageHeight, out imageStride);
+
+                if (_imageSpace.ImageSize.Width != imageWidth || _imageSpace.ImageSize.Height != imageHeight)
+                {
+                    int pixelBpp = 8;
+                    _grabManager.GetPixelBpp(out pixelBpp);
+
+                    _imageSpace.SetImageInfo(pixelBpp, imageWidth, imageHeight, imageStride);
+                    SetBuffer(_imageSpace.BufferCount);
+                }
+            }
+        }
         private void UpdateProperty(InspWindow inspWindow)
         {
             if (inspWindow is null)
@@ -168,6 +238,66 @@ namespace SOMVision.Core
                 return;
 
             propertiesForm.UpdateProperty(inspWindow);
+        }
+        //#11_MATCHING#6 패턴매칭 속성창과 연동된 패턴 이미지 관리 함수
+        public void UpdateTeachingImage(int index)
+        {
+            if (_selectedInspWindow is null)
+                return;
+
+            SetTeachingImage(_selectedInspWindow, index);
+        }
+
+        public void DelTeachingImage(int index)
+        {
+            if (_selectedInspWindow is null)
+                return;
+
+            InspWindow inspWindow = _selectedInspWindow;
+
+            inspWindow.DelWindowImage(index);
+
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo != null)
+            {
+                UpdateProperty(inspWindow);
+            }
+        }
+
+        public void SetTeachingImage(InspWindow inspWindow, int index = -1)
+        {
+            if (inspWindow is null)
+                return;
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm is null)
+                return;
+
+            Mat curImage = cameraForm.GetDisplayImage();
+            if (curImage is null)
+                return;
+
+            if (inspWindow.WindowArea.Right >= curImage.Width ||
+                inspWindow.WindowArea.Bottom >= curImage.Height)
+            {
+                Console.Write("ROI 영역이 잘못되었습니다!");
+                return;
+            }
+
+            Mat windowImage = curImage[inspWindow.WindowArea];
+
+            if (index < 0)
+                inspWindow.AddWindowImage(windowImage);
+            else
+                inspWindow.SetWindowImage(windowImage, index);
+
+            inspWindow.IsPatternLearn = false;
+
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo != null)
+            {
+                UpdateProperty(inspWindow);
+            }
         }
 
         public void SetBuffer(int bufferCount)
@@ -291,6 +421,8 @@ namespace SOMVision.Core
 
             inspWindow.WindowArea = rect;
             inspWindow.IsTeach = false;
+
+            SetTeachingImage(inspWindow);
             UpdateProperty(inspWindow);
             UpdateDiagramEntity();
 
@@ -402,18 +534,6 @@ namespace SOMVision.Core
             }
         }
 
-        public Bitmap GetCurrentImage()
-        {
-            Bitmap bitmap = null;
-            var cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm != null)
-            {
-                bitmap = cameraForm.GetDisplayImage();
-            }
-
-            return bitmap;
-        }
-
         public Bitmap GetBitmap(int bufferIndex = -1)
         {
             if (Global.Inst.InspStage.ImageSpace is null)
@@ -422,10 +542,18 @@ namespace SOMVision.Core
             return Global.Inst.InspStage.ImageSpace.GetBitmap();
         }
 
-        public Mat GetMat()
+        public Mat GetMat(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
         {
-            return Global.Inst.InspStage.ImageSpace.GetMat();
+            if (bufferIndex >= 0)
+                SelBufferIndex = bufferIndex;
+
+            //#BINARY FILTER#14 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
+            if (imageChannel != eImageChannel.None)
+                SelImageChannel = imageChannel;
+
+            return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, SelImageChannel);
         }
+
         //#10_INSPWINDOW#14 변경된 모델 정보 갱신하여, ImageViewer와 모델트리에 반영
         public void UpdateDiagramEntity()
         {
@@ -450,6 +578,42 @@ namespace SOMVision.Core
                 cameraForm.UpdateImageViewer();
             }
         }
+
+        //#12_MODEL SAVE#4 Mainform에서 호출되는 모델 열기와 저장 함수        
+        public bool LoadModel(string filePath)
+        {
+            Console.Write($"모델 로딩:{filePath}");
+
+            _model = _model.Load(filePath);
+
+            if (_model is null)
+            {
+                Console.Write($"모델 로딩 실패:{filePath}");
+                return false;
+            }
+
+            string inspImagePath = _model.InspectImagePath;
+            if (File.Exists(inspImagePath))
+            {
+                Global.Inst.InspStage.SetImageBuffer(inspImagePath);
+            }
+
+            UpdateDiagramEntity();
+
+            return true;
+        }
+
+        public void SaveModel(string filePath)
+        {
+            Console.Write($"모델 저장:{filePath}");
+
+            //입력 경로가 없으면 현재 모델 저장
+            if (string.IsNullOrEmpty(filePath))
+                Global.Inst.InspStage.CurModel.Save();
+            else
+                Global.Inst.InspStage.CurModel.SaveAs(filePath);
+        }
+
         #region Disposable
 
         private bool disposed = false; // to detect redundant calls

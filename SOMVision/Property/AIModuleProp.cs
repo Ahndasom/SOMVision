@@ -90,9 +90,13 @@ namespace SOMVision.Property
                 return;
             }
 
-            Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
+            Bitmap bitmap = Global.Inst.InspStage.GetBitmap();
 
-            //Bitmap bitmap = Global.Inst.InspStage.AIModule.GetTestImage(); // 테스트 이미지 가져오기
+            if (bitmap is null)
+            {
+                MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             _saigeAI.Inspect(bitmap);
 
