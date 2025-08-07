@@ -302,22 +302,20 @@ namespace SOMVision.Core
 
         public void SetBuffer(int bufferCount)
         {
-            if (_grabManager == null)
-                return;
-
-            if (_imageSpace.BufferCount == bufferCount)
-                return;
-
             _imageSpace.InitImageSpace(bufferCount);
-            _grabManager.InitBuffer(bufferCount);
 
-            for (int i = 0; i < bufferCount; i++)
+            if (_grabManager != null)
             {
-                _grabManager.SetBuffer(
-                    _imageSpace.GetInspectionBuffer(i),
-                    _imageSpace.GetnspectionBufferPtr(i),
-                    _imageSpace.GetInspectionBufferHandle(i),
-                    i);
+                _grabManager.InitBuffer(bufferCount);
+
+                for (int i = 0; i < bufferCount; i++)
+                {
+                    _grabManager.SetBuffer(
+                        _imageSpace.GetInspectionBuffer(i),
+                        _imageSpace.GetnspectionBufferPtr(i),
+                        _imageSpace.GetInspectionBufferHandle(i),
+                        i);
+                }
             }
         }
 
@@ -332,6 +330,7 @@ namespace SOMVision.Core
             }
 
             UpdateDiagramEntity();
+            inspWindow.ResetInspResult();
 
             List<DrawInspectInfo> totalArea = new List<DrawInspectInfo>();
 
@@ -343,40 +342,51 @@ namespace SOMVision.Core
                 inspAlgo.TeachRect = windowArea;
                 inspAlgo.InspRect = windowArea;
 
+
+                Mat srcImage = Global.Inst.InspStage.GetMat();
+                inspAlgo.SetInspData(srcImage);
+
+                if (!inspAlgo.DoInspect())
+                    continue;
+
+                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
+                int resultCnt = inspAlgo.GetResultRect(out resultArea);
+                if (resultCnt > 0)
+                {
+                    totalArea.AddRange(resultArea);
+                }
+
                 InspectType inspType = inspAlgo.InspectType;
+
+                string resultInfo = string.Join("\r\n", inspAlgo.ResultString);
+
+                InspResult inspResult = new InspResult
+                {
+                    ObjectID = inspWindow.UID,
+                    InspType = inspAlgo.InspectType,
+                    IsDefect = inspAlgo.IsDefect,
+                    ResultInfos = resultInfo
+                };
 
                 switch (inspType)
                 {
+                    case InspectType.InspMatch:
+                        {
+                            MatchAlgorithm matchAlgo = inspAlgo as MatchAlgorithm;
+                            inspResult.ResultValue = $"{matchAlgo.OutScore}";
+                            break;
+                        }
                     case InspectType.InspBinary:
                         {
                             BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
-
-                            Mat srcImage = Global.Inst.InspStage.GetMat();
-                            blobAlgo.SetInspData(srcImage);
-
-                            if (blobAlgo.DoInspect())
-                            {
-                                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-                                int resultCnt = blobAlgo.GetResultRect(out resultArea);
-                                if (resultCnt > 0)
-                                {
-                                    totalArea.AddRange(resultArea);
-                                }
-                            }
-
+                            int min = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].min;
+                            int max = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].max;
+                            inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{min}~{max}";
                             break;
                         }
                 }
 
-                if (inspAlgo.DoInspect())
-                {
-                    List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-                    int resultCnt = inspAlgo.GetResultRect(out resultArea);
-                    if (resultCnt > 0)
-                    {
-                        totalArea.AddRange(resultArea);
-                    }
-                }
+                inspWindow.AddInspResult(inspResult);
             }
 
             if (totalArea.Count > 0)
@@ -388,7 +398,14 @@ namespace SOMVision.Core
                     cameraForm.AddRect(totalArea);
                 }
             }
+
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            if (resultForm != null)
+            {
+                resultForm.AddWindowResult(inspWindow);
+            }
         }
+
         //#10_INSPWINDOW#13 ImageViewCtrl에서 ROI 생성,수정,이동,선택 등에 대한 함수
         public void SelectInspWindow(InspWindow inspWindow)
         {

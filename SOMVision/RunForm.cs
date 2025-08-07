@@ -32,21 +32,18 @@ namespace SOMVision
                 return;
             }
 
+            stage.CheckImageBuffer();
             stage.Grab(0);
         }
 
         private void btnLive_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.ToggleLiveMode();
-            
             if (Global.Inst.InspStage.LiveMode)
             {
-                btnLive.Text = "동영상 멈춤";
+                
+                Global.Inst.InspStage.CheckImageBuffer();
                 Global.Inst.InspStage.Grab(0); // 최초 시작
-            }
-            else
-            {
-                btnLive.Text = "동영상 촬영";
             }
         }
 

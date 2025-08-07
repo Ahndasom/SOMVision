@@ -251,7 +251,7 @@ namespace SOMVision.Property
             dataGridViewFilter.Enabled = useBinary;
             GetProperty();
         }
-
+        
         //콤보박스 변경시 이진화 프리뷰 갱신
         private void cbHighlight_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -305,8 +305,6 @@ namespace SOMVision.Property
 
             _updateDataGridView = true;
         }
-
-
 
     }
 

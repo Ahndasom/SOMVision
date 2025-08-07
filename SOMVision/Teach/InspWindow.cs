@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using SOMVision.Algorithm;
 using SOMVision.Core;
+using SOMVision.Inspect;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,9 @@ namespace SOMVision.Teach
 
         [XmlElement("InspAlgorithm")]
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
+
+        public List<InspResult> InspResultList { get; set; } = new List<InspResult>();
+
         [XmlIgnore]
         public List<Mat> _windowImages = new List<Mat>();
         public void AddWindowImage(Mat image)
@@ -257,6 +261,21 @@ namespace SOMVision.Teach
             }
 
             return true;
+        }
+        //#13_INSP_RESULT#2 검사 결과를 초기화 및 추가 함수
+        public void ResetInspResult()
+        {
+            foreach (var algorithm in AlgorithmList)
+            {
+                algorithm.ResetResult();
+            }
+
+            InspResultList.Clear();
+        }
+
+        public void AddInspResult(InspResult inspResult)
+        {
+            InspResultList.Add(inspResult);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SOMVision.Grab;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -66,6 +67,7 @@ namespace SOMVision.Setting
         private void btnApply_Click(object sender, EventArgs e)
         {
             SaveSetting();
+            Console.WriteLine($"적용");
         }
     }
 }

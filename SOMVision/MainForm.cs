@@ -50,11 +50,13 @@ namespace SOMVision
             _dockPanel.AllowEndUserDocking = false;
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
-
-            var runWindow = new RunForm();
-            runWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.2);
+            var resultWindow = new ResultForm();
+            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
             var modelTreeWindow = new ModelTreeForm();
-            modelTreeWindow.Show(runWindow.Pane, DockAlignment.Right, 0.3);
+            modelTreeWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.4);
+            var runWindow = new RunForm();
+            runWindow.Show(modelTreeWindow.Pane, null);
+            
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
         }
@@ -81,7 +83,9 @@ namespace SOMVision
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    cameraForm.LoadImage(filePath);
+                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
+                    
                 }
             }
 

@@ -76,7 +76,9 @@ namespace SOMVision.Setting
         private static SettingXml CreateDefaultInstance()
         {
             SettingXml setting = new SettingXml();
-            setting.ModelDir = @"C:\sommodel";
+            setting.ModelDir = @"C:\model";
+            if (!Directory.Exists(setting.ModelDir))
+                Directory.CreateDirectory(setting.ModelDir);
             return setting;
         }
 

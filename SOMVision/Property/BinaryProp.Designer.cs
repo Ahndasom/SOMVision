@@ -96,6 +96,7 @@
             this.chkUse.TabIndex = 7;
             this.chkUse.Text = "검사";
             this.chkUse.UseVisualStyleBackColor = true;
+            this.chkUse.CheckedChanged += new System.EventHandler(this.chkUse_CheckedChanged);
             // 
             // chkRotatedRect
             // 
