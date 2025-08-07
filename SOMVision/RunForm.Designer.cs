@@ -31,9 +31,9 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RunForm));
             this.btnGrab = new System.Windows.Forms.Button();
+            this.runImageList = new System.Windows.Forms.ImageList(this.components);
             this.btnInsp = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
-            this.runImageList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
             // btnGrab
@@ -47,6 +47,14 @@
             this.btnGrab.TabIndex = 1;
             this.btnGrab.UseVisualStyleBackColor = true;
             this.btnGrab.Click += new System.EventHandler(this.btnGrab_Click);
+            // 
+            // runImageList
+            // 
+            this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
+            this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.runImageList.Images.SetKeyName(0, "camera.png");
+            this.runImageList.Images.SetKeyName(1, "camera (1).png");
+            this.runImageList.Images.SetKeyName(2, "check-mark.png");
             // 
             // btnInsp
             // 
@@ -71,14 +79,6 @@
             this.btnLive.TabIndex = 3;
             this.btnLive.UseVisualStyleBackColor = true;
             this.btnLive.Click += new System.EventHandler(this.btnLive_Click);
-            // 
-            // runImageList
-            // 
-            this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
-            this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.runImageList.Images.SetKeyName(0, "camera.png");
-            this.runImageList.Images.SetKeyName(1, "camera (1).png");
-            this.runImageList.Images.SetKeyName(2, "check-mark.png");
             // 
             // RunForm
             // 

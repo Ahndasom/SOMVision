@@ -1,5 +1,6 @@
 ﻿using SOMVision.Core;
 using SOMVision.Grab;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -51,15 +52,13 @@ namespace SOMVision.Setting
 
             // 새로 추가된 부분!
             Global.Inst.InspStage.SetCameraType(selectedType);
-
-            Console.WriteLine($"[CameraSetting] 카메라 타입 변경됨: {selectedType}");
         }
 
         private void btnApply_Click(object sender, EventArgs e)
         {
             SaveSetting();
             CameraType selectedType = (CameraType)cbCameraType.SelectedItem;
-            Console.WriteLine($"[CameraSetting] 적용된 카메라 타입: {selectedType} (Index={cbCameraType.SelectedIndex})");
+            SLogger.Write($"[CameraSetting] 적용된 카메라 타입: {selectedType}");
         }
     }
 }

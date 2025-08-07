@@ -3,6 +3,7 @@ using SOMVision.Algorithm;
 using SOMVision.Core;
 using SOMVision.Teach;
 using SOMVision.UIControl;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,6 +28,7 @@ namespace SOMVision
         }
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
+            SLogger.Write($"ImageViewer Action {e.ActionType.ToString()}");
             switch (e.ActionType)
             {
                 case EntityActionType.Select:

@@ -2,6 +2,7 @@
 using SOMVision.Grab;
 using SOMVision.Setting;
 using SOMVision.Teach;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,13 +53,14 @@ namespace SOMVision
             cameraWindow.Show(_dockPanel, DockState.Document);
             var resultWindow = new ResultForm();
             resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
-            var modelTreeWindow = new ModelTreeForm();
-            modelTreeWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.4);
             var runWindow = new RunForm();
-            runWindow.Show(modelTreeWindow.Pane, null);
-            
+            runWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.4);
+            var modelTreeWindow = new ModelTreeForm();
+            modelTreeWindow.Show(runWindow.Pane, DockAlignment.Bottom, 0.5);
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
+            var logWindow = new LogForm();
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
         }
 
         public static T GetDockForm<T>() where T : DockContent
@@ -92,6 +94,7 @@ namespace SOMVision
         }
         private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            SLogger.Write($"환경설정창 열기");
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }

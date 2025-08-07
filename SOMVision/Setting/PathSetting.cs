@@ -1,4 +1,5 @@
 ﻿using SOMVision.Grab;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,6 +35,7 @@ namespace SOMVision.Setting
 
             //환경설정 저장
             SettingXml.Save();
+            
         }
 
         private void btnSelModelDir_Click(object sender, EventArgs e)
@@ -67,7 +69,7 @@ namespace SOMVision.Setting
         private void btnApply_Click(object sender, EventArgs e)
         {
             SaveSetting();
-            Console.WriteLine($"적용");
+            SLogger.Write($"경로 설정 적용");
         }
     }
 }

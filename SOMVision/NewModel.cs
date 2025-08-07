@@ -1,4 +1,5 @@
 ﻿using SOMVision.Core;
+using SOMVision.Properties;
 using SOMVision.Setting;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,11 @@ namespace SOMVision
             }
 
             string modelDir = SettingXml.Inst.ModelDir;
+
             if (Directory.Exists(modelDir) == false)
             {
-                MessageBox.Show("모델 저장 폴더가 존재하지 않습니다.");
+                MessageBox.Show("모델 저장 폴더가 존재하지 않습니다. 폴더를 생성합니다");
+                Directory.CreateDirectory(modelDir);
                 return;
             }
 

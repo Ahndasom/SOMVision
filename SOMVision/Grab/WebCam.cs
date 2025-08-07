@@ -1,10 +1,11 @@
 ﻿using OpenCvSharp;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 
 namespace SOMVision.Grab
 {
@@ -24,7 +25,7 @@ namespace SOMVision.Grab
             _capture = new VideoCapture(0);
             if (_capture == null || !_capture.IsOpened())
             {
-                Console.WriteLine("WebCam 초기화 실패");
+                SLogger.Write("Error: WebCam 초기화 실패",SLogger.LogType.Error); 
                 return false;
             }
             return true;
@@ -49,6 +50,10 @@ namespace SOMVision.Grab
                     if (_userImageBuffer[BufferIndex].ImageBuffer.Length >= bufSize)
                     {
                         Marshal.Copy(_frame.Data, _userImageBuffer[BufferIndex].ImageBuffer, 0, bufSize);
+                    }
+                    else
+                    {
+                        SLogger.Write("Error: Buffer size is too small.", SLogger.LogType.Error);
                     }
                 }
                 OnTransferCompleted(BufferIndex);

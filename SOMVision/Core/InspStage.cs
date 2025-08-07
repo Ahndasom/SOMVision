@@ -5,6 +5,7 @@ using SOMVision.Grab;
 using SOMVision.Inspect;
 using SOMVision.Setting;
 using SOMVision.Teach;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -104,8 +105,8 @@ namespace SOMVision.Core
 
         public bool Initialize()
         {
+            SLogger.Write("InspStage 초기화!");
             _imageSpace = new ImageSpace();
-            //_blobAlgorithm = new BlobAlgorithm();   
             _previewImage = new PreviewImage();
             _model = new Model();
 
@@ -164,7 +165,7 @@ namespace SOMVision.Core
         }
         public void SetImageBuffer(string filePath)
         {
-            Console.Write($"Load Image : {filePath}");
+            SLogger.Write($"Load Image : {filePath}");
 
             Mat matImage = Cv2.ImRead(filePath);
 
@@ -280,7 +281,7 @@ namespace SOMVision.Core
             if (inspWindow.WindowArea.Right >= curImage.Width ||
                 inspWindow.WindowArea.Bottom >= curImage.Height)
             {
-                Console.Write("ROI 영역이 잘못되었습니다!");
+                SLogger.Write("ROI 영역이 잘못되었습니다!");
                 return;
             }
 
@@ -317,6 +318,7 @@ namespace SOMVision.Core
                         i);
                 }
             }
+            SLogger.Write("버퍼 초기화 성공!");
         }
 
         public void TryInspection(InspWindow inspWindow = null)
@@ -338,6 +340,9 @@ namespace SOMVision.Core
 
             foreach (var inspAlgo in inspWindow.AlgorithmList)
             {
+                if (!inspAlgo.IsUse)
+                    continue;
+
                 //검사 영역 초기화
                 inspAlgo.TeachRect = windowArea;
                 inspAlgo.InspRect = windowArea;
@@ -521,13 +526,14 @@ namespace SOMVision.Core
         private async void _multiGrab_TransferCompleted(object sender, object e)
         {
             int bufferIndex = (int)e;
-            Console.WriteLine($"_multiGrab_TransferCompleted {bufferIndex}");
+            SLogger.Write($"_multiGrab_TransferCompleted {bufferIndex}");
 
             _imageSpace.Split(bufferIndex);
 
             DisplayGrabImage(bufferIndex);
             if (LiveMode)
             {
+                SLogger.Write("Grab");
                 await Task.Delay(100); // 너무 빠른 촬영 방지
                 _grabManager.Grab(bufferIndex, true); // 반복 촬영
             }
@@ -599,13 +605,13 @@ namespace SOMVision.Core
         //#12_MODEL SAVE#4 Mainform에서 호출되는 모델 열기와 저장 함수        
         public bool LoadModel(string filePath)
         {
-            Console.Write($"모델 로딩:{filePath}");
+            SLogger.Write($"모델 로딩:{filePath}");
 
             _model = _model.Load(filePath);
 
             if (_model is null)
             {
-                Console.Write($"모델 로딩 실패:{filePath}");
+                SLogger.Write($"모델 로딩 실패:{filePath}");
                 return false;
             }
 
@@ -622,7 +628,7 @@ namespace SOMVision.Core
 
         public void SaveModel(string filePath)
         {
-            Console.Write($"모델 저장:{filePath}");
+            SLogger.Write($"모델 저장:{filePath}");
 
             //입력 경로가 없으면 현재 모델 저장
             if (string.IsNullOrEmpty(filePath))

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SOMVision.Util;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -107,6 +108,7 @@ namespace SOMVision.Grab
 
         internal bool InitGrab()
         {
+            SLogger.Write("Grab 초기화 시작!");
             if (!Create())
                 return false;
 
@@ -115,7 +117,7 @@ namespace SOMVision.Grab
                 if (!Reconnect())
                     return false;
             }
-
+            SLogger.Write("Grab 초기화 성공!");
             return true;
         }
 

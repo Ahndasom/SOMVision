@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
 using SOMVision.Core;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,7 +111,7 @@ namespace SOMVision.Algorithm
             OutScore = (int)(maxScore * 100);
             OutPoint = maxLoc + leftTopPos;
 
-            Console.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
+            SLogger.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
 
             return true;
         }
@@ -345,7 +346,7 @@ namespace SOMVision.Algorithm
 
             foreach (var point in OutPoints)
             {
-                Console.Write($"매칭된 위치: {OutPoints}");
+                SLogger.Write($"매칭된 위치: {OutPoints}");
                 resultArea.Add(new DrawInspectInfo(new Rect(point.X, point.Y, _templateImages[0].Width, _templateImages[0].Height),
                     info, InspectType.InspMatch, decisionType));
             }

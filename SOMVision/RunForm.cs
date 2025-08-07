@@ -1,5 +1,6 @@
 ﻿using SOMVision.Core;
 using SOMVision.Grab;
+using SOMVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,7 +25,7 @@ namespace SOMVision
         {
             var stage = Global.Inst.InspStage;
 
-            Console.WriteLine($"[RunForm] 촬상 클릭됨. CameraType: {stage.GetCurrentCameraType()}");
+            SLogger.Write($"[RunForm] 촬상 클릭됨. CameraType: {stage.GetCurrentCameraType()}");
 
             if (stage.GetCurrentCameraType() == CameraType.None)
             {
@@ -38,17 +39,24 @@ namespace SOMVision
 
         private void btnLive_Click(object sender, EventArgs e)
         {
+            var stage = Global.Inst.InspStage;
             Global.Inst.InspStage.ToggleLiveMode();
             if (Global.Inst.InspStage.LiveMode)
             {
-                
+                SLogger.Write($"[RunForm] 동영상 모드 클릭됨. CameraType:{stage.GetCurrentCameraType()}");
                 Global.Inst.InspStage.CheckImageBuffer();
                 Global.Inst.InspStage.Grab(0); // 최초 시작
             }
+            else
+            {
+                SLogger.Write($"[RunForm] 동영상 모드 중지됨. CameraType:{stage.GetCurrentCameraType()}");
+            }
+
         }
 
         private void btnInsp_Click(object sender, EventArgs e)
         {
+            SLogger.Write($"[RunForm] 검사 클릭됨.");
             Global.Inst.InspStage.TryInspection();
         }
     }
