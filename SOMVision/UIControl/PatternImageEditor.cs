@@ -26,11 +26,11 @@ namespace SOMVision.UIControl
         private readonly ImageList _imageListThumb;      // holds the generated thumbnails
 
         // ––– placeholders for your business objects –––
-        private object _inspWindow;
+        //private object _inspWindow;
         private object _isImg;
         private int _curAlgoIndex = -1;
         private string _editBmpPath = string.Empty;
-        private int _editIndex = -1;
+        //private int _editIndex = -1;
 
         #region Events
         public event EventHandler<PatternImageEventArgs> ButtonChanged;
@@ -53,8 +53,8 @@ namespace SOMVision.UIControl
             _imageListThumb.Images.Clear();
             listThumbnail.Items.Clear();
             _isImg = null;
-            _editIndex = -1;
-            _inspWindow = null;
+            //_editIndex = -1;
+            //_inspWindow = null;
             _curAlgoIndex = -1;
         }
 
@@ -134,8 +134,13 @@ namespace SOMVision.UIControl
         {
             int nSelItem = GetSelectedIndex();
             if (nSelItem < 0)
-                return;
-
+            {
+                //1개 이하 일때 기본값 사용
+                if (listThumbnail.Items.Count == 1)
+                    nSelItem = 0;
+                else
+                    return;
+            }
             OnSelectChannel(PatternImageButton.UpdateImage, nSelItem);
         }
 
@@ -146,6 +151,10 @@ namespace SOMVision.UIControl
 
         private void btnDel_Click(object sender, EventArgs e)
         {
+            //1개 이하 일때 리턴
+            if (listThumbnail.Items.Count <= 1)
+                return;
+
             int nSelItem = GetSelectedIndex();
             if (nSelItem < 0)
                 return;

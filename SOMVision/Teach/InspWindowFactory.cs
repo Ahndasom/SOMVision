@@ -70,6 +70,9 @@ namespace SOMVision.Teach
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
+                case InspWindowType.ID:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    break;
             }
 
             return true;
@@ -93,6 +96,10 @@ namespace SOMVision.Teach
                 case InspWindowType.Sub:
                     name = "Sub";
                     prefix = "SUB";
+                    break;
+                case InspWindowType.ID:
+                    name = "ID";
+                    prefix = "ID";
                     break;
                 default:
                     return false;

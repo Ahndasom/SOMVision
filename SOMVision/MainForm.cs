@@ -45,6 +45,7 @@ namespace SOMVision
 
             //#6_INSP_STAGE#1 전역 인스턴스 초기화
             Global.Inst.Initialize();
+            LoadSetting();
         }
         private void LoadDockingWindows()
         {
@@ -61,6 +62,10 @@ namespace SOMVision
             propWindow.Show(_dockPanel, DockState.DockRight);
             var logWindow = new LogForm();
             logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
+        }
+        private void LoadSetting()
+        {
+            cycleModeMenuItem.Checked = SettingXml.Inst.CycleMode;
         }
 
         public static T GetDockForm<T>() where T : DockContent
@@ -166,6 +171,13 @@ namespace SOMVision
                     Global.Inst.InspStage.SaveModel(filePath);
                 }
             }
+        }
+
+        private void cycleModeMenuItem_Click(object sender, EventArgs e)
+        {
+            SLogger.Write($"Cycle Mode Click");
+            bool isChecked = cycleModeMenuItem.Checked;
+            SettingXml.Inst.CycleMode = isChecked;
         }
     }
 }

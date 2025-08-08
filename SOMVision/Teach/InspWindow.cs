@@ -82,7 +82,9 @@ namespace SOMVision.Teach
             InspWindow cloneWindow = InspWindowFactory.Inst.Create(this.InspWindowType, false);
             cloneWindow.WindowArea = this.WindowArea + offset;
             cloneWindow.IsTeach = false;
-
+            cloneWindow.IsPatternLearn = false;
+            foreach (var img in _windowImages.ToList())
+                cloneWindow._windowImages.Add(img?.Clone());
             foreach (InspAlgorithm algo in AlgorithmList)
             {
                 var cloneAlgo = algo.Clone();

@@ -6,12 +6,22 @@ using System.Threading.Tasks;
 
 namespace SOMVision.Core
 {
+    public enum InspectType
+    {
+        InspNone = -1,
+        InspBinary,
+        InspMatch,
+        InspFilter,
+        InspAIModule,
+        InspCount
+    }
     public enum InspWindowType
     {
         None = 0,
         Base,
         Body,
-        Sub
+        Sub,
+        ID
     }
 
     public enum DecisionType
@@ -23,7 +33,13 @@ namespace SOMVision.Core
         Error,          //오류
         Timeout         //타임아웃
     }
-
+    public enum WorkingState
+    {
+        NONE = 0,
+        INSPECT,
+        LIVE,
+        ALARM
+    }
     public static class Define
     {
         //# SAVE ROI#4 전역적으로, ROI 저장 파일명을 설정

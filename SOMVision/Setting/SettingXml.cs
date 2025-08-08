@@ -88,6 +88,7 @@ namespace SOMVision.Setting
         public string ImageDir { get; set; } = "";
 
         public CameraType CamType { get; set; } = CameraType.WebCam;
+        public bool CycleMode { get; set; } = false;
 
     }
 }

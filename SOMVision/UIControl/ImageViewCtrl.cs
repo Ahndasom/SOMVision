@@ -70,7 +70,7 @@ namespace SOMVision.UIControl
 
         //#8_INSPECT_BINARY#15 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
         private List<DrawInspectInfo> _rectInfos = new List<DrawInspectInfo>();
-
+        public string WorkingState { get; set; } = "";
         private InspectResultCount _inspectResultCount = new InspectResultCount();
 
         //#10_INSPWINDOW#15 ROI 편집에 필요한 변수 선언
@@ -106,6 +106,7 @@ namespace SOMVision.UIControl
 
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
+        private readonly object _lock = new object();
 
         public ImageViewCtrl()
         {
@@ -137,11 +138,14 @@ namespace SOMVision.UIControl
                 case InspWindowType.Base:
                     color = Color.LightBlue;
                     break;
+                case InspWindowType.Body:
+                    color = Color.Yellow;
+                    break;
                 case InspWindowType.Sub:
                     color = Color.Orange;
                     break;
-                case InspWindowType.Body:
-                    color = Color.Yellow;
+                case InspWindowType.ID:
+                    color = Color.Magenta;
                     break;
             }
 
@@ -184,12 +188,19 @@ namespace SOMVision.UIControl
 
         public void LoadBitmap(Bitmap bitmap)
         {
+            //#15_INSP_WORKER#9 스레드에서 검사시, 멈추는 현상 방지
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action<Bitmap>(LoadBitmap), bitmap);
+                return;
+            }
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
                 //이미지 크기가 같다면, 이미지 변경 후, 화면 갱신
                 if (_bitmapImage.Width == bitmap.Width && _bitmapImage.Height == bitmap.Height)
                 {
+                    _bitmapImage.Dispose();
                     _bitmapImage = bitmap;
                     Invalidate();
                     return;
@@ -368,11 +379,36 @@ namespace SOMVision.UIControl
                     g.DrawRectangle(pen, _selectionBox);
                 }
             }
-
-            // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
-            if (_rectInfos != null)
+            lock (_lock)
             {
-                foreach (DrawInspectInfo rectInfo in _rectInfos)
+                DrawRectInfo(g);
+            }
+            //#17_WORKING_STATE#4 작업 상태 화면에 표시
+            if (WorkingState != "")
+            {
+                float fontSize = 20.0f;
+                Color stateColor = Color.FromArgb(255, 128, 0);
+                PointF textPos = new PointF(10, 10);
+                DrawText(g, WorkingState, textPos, fontSize, stateColor);
+            }
+
+            //#13_INSP_RESULT#5 검사 양불판정 갯수 화면에 표시
+            if (_inspectResultCount.Total > 0)
+            {
+                string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
+
+                float fontSize = 12.0f;
+                Color resultColor = Color.FromArgb(255, 255, 255);
+                PointF textPos = new PointF(Width - 80, 10);
+                DrawText(g, resultText, textPos, fontSize, resultColor);
+            }
+        }
+
+        private void DrawRectInfo(Graphics g)
+        {
+            if (_rectInfos == null || _rectInfos.Count <= 0)
+                return;
+            foreach (DrawInspectInfo rectInfo in _rectInfos)
                 {
                     Color lineColor = Color.LightCoral;
                     if (rectInfo.decision == DecisionType.Defect)
@@ -431,17 +467,7 @@ namespace SOMVision.UIControl
                     }
                 }
             }
-            //#13_INSP_RESULT#5 검사 양불판정 갯수 화면에 표시
-            if (_inspectResultCount.Total > 0)
-            {
-                string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
-
-                float fontSize = 12.0f;
-                Color resultColor = Color.FromArgb(255, 255, 255);
-                PointF textPos = new PointF(Width - 80, 10);
-                DrawText(g, resultText, textPos, fontSize, resultColor);
-            }
-        }
+           
         private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)
         {
             using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
@@ -548,6 +574,7 @@ namespace SOMVision.UIControl
                     }
 
                     _selEntity = null;
+                    /*
                     foreach (DiagramEntity entity in _diagramEntityList)
                     {
                         Rectangle screenRect = VirtualToScreen(entity.EntityROI);
@@ -573,7 +600,36 @@ namespace SOMVision.UIControl
                         _isMovingRoi = true;
                         _moveStart = e.Location;
                         break;
+                    }*/
+                    foreach (DiagramEntity entity in _diagramEntityList)
+                    {
+                        Rectangle screenRect = VirtualToScreen(entity.EntityROI);
+                        if (!screenRect.Contains(e.Location))
+                            continue;
+
+                        //컨트롤키를 이용해, 개별 ROI 추가/제거
+                        if (_isCtrlPressed)
+                        {
+                            if (_multiSelectedEntities.Contains(entity))
+                                _multiSelectedEntities.Remove(entity);
+                            else
+                                AddSelectedROI(entity);
+                        }
+                        else
+                        {
+                            _multiSelectedEntities.Clear();
+                            AddSelectedROI(entity);
+                        }
+
+                        _selEntity = entity;
+                        _roiRect = entity.EntityROI;
+                        _isMovingRoi = true;
+                        _moveStart = e.Location;
+
+                        UpdateInspParam();
+                        break;
                     }
+
 
                     if (_selEntity == null && !_isCtrlPressed)
                     {
@@ -987,8 +1043,11 @@ namespace SOMVision.UIControl
 
         public void AddRect(List<DrawInspectInfo> rectInfos)
         {
-            _rectInfos.AddRange(rectInfos);
-            Invalidate();
+            lock (_lock)
+            {
+                _rectInfos.AddRange(rectInfos);
+                Invalidate();
+            }
         }
         public void SetInspResultCount(InspectResultCount inspectResultCount)
         {
@@ -1076,7 +1135,10 @@ namespace SOMVision.UIControl
         }
         public void ResetEntity()
         {
-            _rectInfos.Clear();
+            lock (_lock)
+            {
+                _rectInfos.Clear();
+            }
             Invalidate();
         }
         public bool SetDiagramEntityList(List<DiagramEntity> diagramEntityList)

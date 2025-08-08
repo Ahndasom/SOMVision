@@ -1,13 +1,16 @@
-﻿using System;
+﻿using SOMVision.Algorithm;
+using SOMVision.Core;
+using SOMVision.Property;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using SOMVision.Algorithm;
 
 namespace SOMVision.Property
 {
@@ -22,9 +25,9 @@ namespace SOMVision.Property
 
     public partial class BinaryProp : UserControl
     {
-        //속성창의 값이 변경시 발생하는 이벤트
-        //public event EventHandler<EventArgs> PropertyChanged;
-        //양방향 슬라이더 값 변경시 발생하는 이벤트
+        //#18_IMAGE_CHANNEL#10 이미지 채널 변경시 발생하는 이벤트
+        public event EventHandler<ImageChannelEventArgs> ImageChannelChanged;
+
         public event EventHandler<RangeChangedEventArgs> RangeChanged;
 
         BlobAlgorithm _blobAlgo = null;
@@ -52,6 +55,13 @@ namespace SOMVision.Property
 
             binRangeTrackbar.ValueLeft = 0;
             binRangeTrackbar.ValueRight = 128;
+
+            //#18_IMAGE_CHANNEL#9 이미지 채널 설정 콤보박스
+            cbChannel.Items.Add("Gray");
+            cbChannel.Items.Add("Red");
+            cbChannel.Items.Add("Green");
+            cbChannel.Items.Add("Blue");
+            cbChannel.SelectedIndex = 0; // 기본값으로 "사용안함" 선택
 
             //이진화 프리뷰 콤보박스 초기화 설정
             cbHighlight.Items.Add("사용안함");
@@ -137,6 +147,7 @@ namespace SOMVision.Property
                 binRangeTrackbar.SetThreshold(threshold.lower, threshold.upper);
             }
             cbBinMethod.SelectedIndex = (int)_blobAlgo.BinMethod;
+            cbChannel.SelectedIndex = (int)_blobAlgo.ImageChannel - 1;
 
             UpdateDataGridView(true);
             chkRotatedRect.Checked = _blobAlgo.UseRotatedRect;
@@ -251,18 +262,26 @@ namespace SOMVision.Property
             dataGridViewFilter.Enabled = useBinary;
             GetProperty();
         }
-        
+
         //콤보박스 변경시 이진화 프리뷰 갱신
         private void cbHighlight_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //#18_IMAGE_CHANNEL#12 하이라이트 선택시, 이미지 채널 정보를 전달하여,
+            //프리뷰에 나타나도록 이벤트 발생
+            if (_blobAlgo is null)
+                return;
+
+            _blobAlgo.ImageChannel = (eImageChannel)cbChannel.SelectedIndex + 1;
+            ImageChannelChanged?.Invoke(this, new ImageChannelEventArgs(_blobAlgo.ImageChannel));
             UpdateBinary();
         }
+
+        //#8_INSPECT_BINARY#14 이벤트 발생시 값에 반영
         private void dataGridViewFilter_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (_updateDataGridView == true)
                 UpdateDataGridView(false);
         }
-
 
         // DataGridView안에 있는 체크박스의 경우, CellValueChanged가 발생하지 않아,
         // CellDirtyStateChanged 이벤트를 사용하여 체크박스의 상태가 변경될 때 CommitEdit을 호출합니다.
@@ -273,6 +292,7 @@ namespace SOMVision.Property
                 dataGridViewFilter.CommitEdit(DataGridViewDataErrorContexts.Commit);
             }
         }
+
         private void chkRotatedRect_CheckedChanged(object sender, EventArgs e)
         {
             if (_blobAlgo is null)
@@ -306,6 +326,28 @@ namespace SOMVision.Property
             _updateDataGridView = true;
         }
 
+        //#18_IMAGE_CHANNEL#11 이미지 채널 변경시, 화면에 해당 채널을 표시
+        private void cbChannel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_blobAlgo is null)
+                return;
+
+            _blobAlgo.ImageChannel = (eImageChannel)cbChannel.SelectedIndex + 1;
+            ImageChannelChanged?.Invoke(this, new ImageChannelEventArgs(_blobAlgo.ImageChannel));
+        }
+    }
+
+    public class ImageChannelEventArgs : EventArgs
+    {
+        public eImageChannel Channel { get; }
+        public int UpperValue { get; }
+        public bool Invert { get; }
+        public ShowBinaryMode ShowBinMode { get; }
+
+        public ImageChannelEventArgs(eImageChannel channel)
+        {
+            Channel = channel;
+        }
     }
 
     //이진화 관련 이벤트 발생시, 전달할 값 추가
@@ -325,3 +367,4 @@ namespace SOMVision.Property
         }
     }
 }
+

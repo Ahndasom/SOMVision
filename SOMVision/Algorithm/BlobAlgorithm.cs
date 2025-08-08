@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SaigeVision.Net.V2;
 
 namespace SOMVision.Algorithm
 {
@@ -368,6 +369,11 @@ namespace SOMVision.Algorithm
                     IsDefect = true;
 
                 if (IsDefect == false && countFilter.max > 0 && findBlobCount > countFilter.max)
+                    IsDefect = true;
+            }
+            else
+            {
+                if (_findArea.Count > 0)
                     IsDefect = true;
             }
 

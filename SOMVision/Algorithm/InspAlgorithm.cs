@@ -6,18 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using SaigeVision.Net.V2;
 
 namespace SOMVision.Algorithm
 {
-    public enum InspectType
-    {
-        InspNone = -1,
-        InspBinary,
-        InspMatch,
-        InspFilter,
-        InspAIModule,
-        InspCount
-    }
+    
     [XmlInclude(typeof(MatchAlgorithm))]
     [XmlInclude(typeof(BlobAlgorithm))]
     public abstract class InspAlgorithm

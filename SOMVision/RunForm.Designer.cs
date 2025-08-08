@@ -34,6 +34,7 @@
             this.runImageList = new System.Windows.Forms.ImageList(this.components);
             this.btnInsp = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGrab
@@ -55,6 +56,7 @@
             this.runImageList.Images.SetKeyName(0, "camera.png");
             this.runImageList.Images.SetKeyName(1, "camera (1).png");
             this.runImageList.Images.SetKeyName(2, "check-mark.png");
+            this.runImageList.Images.SetKeyName(3, "stop-button.png");
             // 
             // btnInsp
             // 
@@ -80,11 +82,24 @@
             this.btnLive.UseVisualStyleBackColor = true;
             this.btnLive.Click += new System.EventHandler(this.btnLive_Click);
             // 
+            // btnStop
+            // 
+            this.btnStop.ImageIndex = 3;
+            this.btnStop.ImageList = this.runImageList;
+            this.btnStop.Location = new System.Drawing.Point(281, 13);
+            this.btnStop.Margin = new System.Windows.Forms.Padding(4);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(82, 82);
+            this.btnStop.TabIndex = 4;
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
             // RunForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(294, 108);
+            this.ClientSize = new System.Drawing.Size(487, 108);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.btnInsp);
             this.Controls.Add(this.btnGrab);
@@ -100,5 +115,6 @@
         private System.Windows.Forms.Button btnInsp;
         private System.Windows.Forms.Button btnLive;
         private System.Windows.Forms.ImageList runImageList;
+        private System.Windows.Forms.Button btnStop;
     }
 }
