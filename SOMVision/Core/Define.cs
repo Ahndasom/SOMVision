@@ -40,6 +40,9 @@ namespace SOMVision.Core
         LIVE,
         ALARM
     }
+
+    
+
     public static class Define
     {
         //# SAVE ROI#4 전역적으로, ROI 저장 파일명을 설정

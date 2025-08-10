@@ -29,7 +29,7 @@ namespace SOMVision.Property
 
         private void btnSelAIModel_Click(object sender, EventArgs e)
         {
-            int selType = cbEngineList.SelectedIndex;
+            int selType = cbAIEngineType.SelectedIndex;
             string ext = "AI Files|*.*;";
             switch (selType)
             {
@@ -107,7 +107,7 @@ namespace SOMVision.Property
 
         private void cbEngineList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (cbEngineList.SelectedIndex)
+            switch (cbAIEngineType.SelectedIndex)
             {
                 case 0:
                     _engineType = SaigeAI.EngineType.IAD;

@@ -144,6 +144,14 @@ namespace SOMVision.Teach
                 case InspectType.InspMatch:
                     inspAlgo = new MatchAlgorithm();
                     break;
+                    /*
+                case InspectType.InspFilter:            
+                    inspAlgo = new ImageFilterAlgorithm();
+                    break;
+                case InspectType.InspAIModule:       
+                    inspAlgo = new AIModuleAlgorithm();  // 임시명
+                    break;*/
+
             }
 
             if (inspAlgo is null)

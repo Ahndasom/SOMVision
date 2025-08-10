@@ -61,14 +61,20 @@ namespace SOMVision.Teach
                 case InspWindowType.Base:
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspFilter);
+                    inspWindow.AddInspAlgorithm(InspectType.InspAIModule);
                     break;
                 case InspWindowType.Body:
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspFilter);
+                    inspWindow.AddInspAlgorithm(InspectType.InspAIModule);
                     break;
                 case InspWindowType.Sub:
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspFilter);
+                    inspWindow.AddInspAlgorithm(InspectType.InspAIModule);
                     break;
                 case InspWindowType.ID:
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);

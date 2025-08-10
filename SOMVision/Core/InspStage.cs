@@ -485,7 +485,11 @@ namespace SOMVision.Core
 
             DisplayGrabImage(bufferIndex);
 
-            
+            if (_previewImage != null)
+            {
+                Bitmap bitmap = ImageSpace.GetBitmap(0);
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
 
             if (LiveMode)
             {

@@ -120,8 +120,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\AIModuleAlgorithm.cs" />
     <Compile Include="Algorithm\BlobAlgorithm.cs" />
     <Compile Include="Algorithm\DrawInspectInfo.cs" />
+    <Compile Include="Algorithm\ImageFilterAlgorithm.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
     <Compile Include="Algorithm\MatchAlgorithm.cs" />
     <Compile Include="Core\Define.cs" />
@@ -129,6 +131,12 @@
     <Compile Include="Core\ImageSpace.cs" />
     <Compile Include="Core\InspStage.cs" />
     <Compile Include="Core\PreviewImage.cs" />
+    <Compile Include="FilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FilterForm.Designer.cs">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Grab\GrabModel.cs" />
     <Compile Include="Grab\WebCam.cs" />
     <Compile Include="Inspect\InspBoard.cs" />
