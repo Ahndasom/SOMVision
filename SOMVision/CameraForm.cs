@@ -158,6 +158,7 @@ namespace SOMVision
         public void AddRoi(InspWindowType inspWindowType)
         {
             imageViewer.NewRoi(inspWindowType);
+
         }
         //#13_INSP_RESULT#6 검사 양불판정 갯수 설정 함수
         public void SetInspResultCount(int totalArea, int okCnt, int ngCnt)

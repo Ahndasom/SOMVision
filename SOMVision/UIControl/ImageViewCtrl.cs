@@ -1045,7 +1045,7 @@ namespace SOMVision.UIControl
         {
             lock (_lock)
             {
-                _rectInfos.AddRange(rectInfos);
+                _rectInfos = rectInfos;
                 Invalidate();
             }
         }
@@ -1137,7 +1137,9 @@ namespace SOMVision.UIControl
         {
             lock (_lock)
             {
+                _diagramEntityList.Clear();
                 _rectInfos.Clear();
+                _selEntity = null;
             }
             Invalidate();
         }

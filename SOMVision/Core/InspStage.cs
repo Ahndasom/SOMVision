@@ -4,11 +4,13 @@ using OpenCvSharp.Extensions;
 using SOMVision.Algorithm;
 using SOMVision.Grab;
 using SOMVision.Inspect;
+using SOMVision.Sequence;
 using SOMVision.Setting;
 using SOMVision.Teach;
 using SOMVision.Util;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,7 +18,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace SOMVision.Core
 {
     //검사와 관련된 클래스를 관리하는 클래스
@@ -156,6 +157,11 @@ namespace SOMVision.Core
 
                 InitModelGrab(MAX_GRAB_BUF);
             }
+            //#19_VISION_SEQUENCE#3 VisionSequence 초기화
+            VisionSequence.Inst.InitSequence();
+            VisionSequence.Inst.SeqCommand += SeqCommand;
+
+
             //#16_LAST_MODELOPEN#5 마지막 모델 열기 여부 확인
             if (!LastestModelOpen())
             {
@@ -485,12 +491,6 @@ namespace SOMVision.Core
 
             DisplayGrabImage(bufferIndex);
 
-            if (_previewImage != null)
-            {
-                Bitmap bitmap = ImageSpace.GetBitmap(0);
-                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
-            }
-
             if (LiveMode)
             {
                 SLogger.Write("Grab");
@@ -698,6 +698,8 @@ namespace SOMVision.Core
         {
             if (_inspWorker != null)
                 _inspWorker.Stop();
+            //#19_VISION_SEQUENCE#4 시퀀스 정지
+            VisionSequence.Inst.StopAutoRun();
 
             SetWorkingState(WorkingState.NONE);
         }
@@ -718,6 +720,63 @@ namespace SOMVision.Core
             DisplayGrabImage(0);
 
             return true;
+        }
+
+        //#19_VISION_SEQUENCE#7 시퀀스 명령 처리
+        private void SeqCommand(object sender, SeqCmd seqCmd, object Param)
+        {
+            switch (seqCmd)
+            {
+                case SeqCmd.InspStart:
+                    {
+                        //#WCF_FSM#5 카메라 촬상 후, 검사 진행
+                        SLogger.Write("MMI : InspStart", SLogger.LogType.Info);
+
+                        //검사 시작
+                        string errMsg;
+
+                        if (UseCamera)
+                        {
+                            if (!Grab(0))
+                            {
+                                errMsg = string.Format("Failed to grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
+                        else
+                        {
+                            if (!VirtualGrab())
+                            {
+                                errMsg = string.Format("Failed to virtual grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
+
+                        bool isDefect = false;
+                        if (!_inspWorker.RunInspect(out isDefect))
+                        {
+                            errMsg = string.Format("Failed to inspect");
+                            SLogger.Write(errMsg, SLogger.LogType.Error);
+                        }
+
+                        //#WCF_FSM#6 비젼 -> 제어에 검사 완료 및 결과 전송
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, isDefect);
+                    }
+                    break;
+                case SeqCmd.InspEnd:
+                    {
+                        SLogger.Write("MMI : InspEnd", SLogger.LogType.Info);
+
+                        //모든 검사 종료
+                        string errMsg = "";
+
+                        //검사 완료에 대한 처리
+                        SLogger.Write("검사 종료");
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspEnd, errMsg);
+                    }
+                    break;
+            }
         }
 
         //검사를 위한 준비 작업
@@ -752,6 +811,9 @@ namespace SOMVision.Core
             UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
 
             SetWorkingState(WorkingState.INSPECT);
+            //#19_VISION_SEQUENCE#5 자동검사 시작
+            string modelName = Path.GetFileNameWithoutExtension(modelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
 
             return true;
         }
@@ -777,11 +839,22 @@ namespace SOMVision.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+
+                    //#19_VISION_SEQUENCE#6 시퀀스 이벤트 해제
+                    VisionSequence.Inst.SeqCommand -= SeqCommand;
+
+                    if (_saigeAI != null)
+                    {
+                        _saigeAI.Dispose();
+                        _saigeAI = null;
+                    }
                     if (_grabManager != null)
                     {
                         _grabManager.Dispose();
                         _grabManager = null;
                     }
+
+                    //#16_LAST_MODELOPEN#4 registry 키를 닫습니다.
                     _regKey.Close();
                 }
 

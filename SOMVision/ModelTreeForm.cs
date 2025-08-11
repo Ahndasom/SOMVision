@@ -29,7 +29,7 @@ namespace SOMVision
             _contextMenu = new ContextMenuStrip();
 
             List<InspWindowType> windowTypeList;
-            windowTypeList = new List<InspWindowType> { InspWindowType.Base, InspWindowType.Body, InspWindowType.Sub };
+            windowTypeList = new List<InspWindowType> { InspWindowType.Base, InspWindowType.Body, InspWindowType.Sub, InspWindowType.ID };
 
             foreach (InspWindowType windowType in windowTypeList)
                 _contextMenu.Items.Add(new ToolStripMenuItem(windowType.ToString(), null, AddNode_Click) { Tag = windowType });

@@ -1,11 +1,13 @@
 ﻿using Common.Util.Helpers;
 using SOMVision.Grab;
+using SOMVision.Sequence;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace SOMVision.Setting
 {
@@ -82,14 +84,17 @@ namespace SOMVision.Setting
 
         public SettingXml() { }
 
-        public string MachineName { get; set; } = "DASOM";
+        public string MachineName { get; set; } = "VISION02";
 
         public string ModelDir { get; set; } = "";
         public string ImageDir { get; set; } = "";
 
         public CameraType CamType { get; set; } = CameraType.WebCam;
         public bool CycleMode { get; set; } = false;
-
+        //#19_VISION_SEQUENCE#1 통신타입, IP 설정
+        public CommunicatorType CommType { get; set; }
+        public string CommIP { get; set; } = "127.0.0.1";
     }
+
 }
 
