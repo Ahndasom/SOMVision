@@ -160,10 +160,6 @@ namespace SOMVision.UIControl
             Cursor = Cursors.Cross;
         }
 
-        public Bitmap GetCurBitmap()
-        {
-            return _bitmapImage;
-        }
         //줌에 따른 좌표 계산 기능 수정 
         private void ResizeCanvas()
         {

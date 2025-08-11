@@ -152,6 +152,8 @@ namespace SOMVision.Inspect
 
             foreach (var inspAlgo in inspWindow.AlgorithmList)
             {
+                if (!inspAlgo.IsUse)
+                    continue;
                 //검사 영역 초기화
                 inspAlgo.TeachRect = windowArea;
                 inspAlgo.InspRect = windowArea;
